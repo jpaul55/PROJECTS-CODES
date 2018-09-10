@@ -1,0 +1,829 @@
+//jq142 = jQuery.noConflict(true); 
+//active x script
+//var bKey, pName, vName;
+var _accessID = "";
+var _selectStr = "";
+var _type = "";
+var _requestProbCat = "";
+var _rbtnListProbCat = "rbtnListProbCat";
+var _errorMsg = "";
+var _urlFrom = document.referrer || "";
+var _postToUrl = "https://" + location.hostname + "/jpprechatform/";
+var _muParam = "";
+var jpchatptrn2 = "/scripts/web/hsc/jpchatptrn2.js?v=02272017_16";
+var prochatjp_btn = "/scripts/web/hsc/prochatjp_btn.js?v=02272017_7";
+var test = false;
+var jpsupp = false;
+var sessionKb = false;
+var session = false;
+var resultFname = false;
+var resultLname = false;
+var resultEmail = false;
+var cem = false;
+var sched = getParameterByName('sched');
+
+
+    var isMobile = {
+          Android: function() {
+              return navigator.userAgent.match(/Android/i);
+          },
+          BlackBerry: function() {
+              return navigator.userAgent.match(/BlackBerry/i);
+          },
+          iOS: function() {
+              return navigator.userAgent.match(/iPhone|iPad|iPod/i);
+          },
+          Opera: function() {
+              return navigator.userAgent.match(/Opera Mini/i);
+          },
+          Windows: function() {
+              return navigator.userAgent.match(/IEMobile/i) || navigator.userAgent.match(/WPDesktop/i);
+          },
+          any: function() {
+              return (isMobile.Android() || isMobile.BlackBerry() || isMobile.iOS() || isMobile.Opera() || isMobile.Windows());
+          },
+          ieBrowsers: function() {
+              return navigator.userAgent.indexOf("MSIE") !== -1 || navigator.userAgent.indexOf("Trident/") !== -1 || navigator.userAgent.indexOf("MSIE") !== -1 || navigator.userAgent.indexOf("Edge/") !== -1;
+          }
+      };
+
+   function isNumeric(n) {
+        return !isNaN(parseFloat(n)) && isFinite(n);
+     }
+   
+    var url = window.location.href;
+    var urlsplit = url.split('.');
+    var dot = urlsplit[2];
+    var dotsplit = dot.split('/');
+    var kbId = dotsplit.slice(-1)[0];
+    console.log(kbId);
+    if(isNumeric(kbId)){
+      solutionID = kbId;
+    }else{
+        if(window.location.href.indexOf('contact') > - 1){
+             solutionID = 'Contact';
+         }else{
+             solutionID = '';
+         }
+    }
+
+
+     function loadSearchInterval(intervalss) {
+         var counterSearch = 0;
+         var loaded = parseInt(sessionStorage.getItem('loaded'), 10),
+         loaded_numb = loaded?loaded+1:1;
+         sessionStorage.setItem('loaded', loaded_numb);
+   
+         console.log('SessionCount ' + intervalss);
+        
+        if(loaded_numb > 2){
+          session = true;      
+        }
+        
+        if(!session && !isMobile.any()){
+         var myIntervalSearch = window.setInterval(CheckActiveSearch, 1000);
+        }
+        
+        function CheckActiveSearch() {
+              counterSearch++;
+              if (counterSearch === intervalss) {
+                  $(".proactive-chat-button").trigger("click");               
+                  $('.proactive-chat-icon .procty').toggleClass('proactive-procty-close').toggleClass('proactive-procty');
+                  window.clearInterval(counterSearch);
+                  return false;
+              }
+          }  
+      } 
+
+    function getParameterByName(name, url) {
+          if (!url) url = window.location.href;
+          name = name.replace(/[\[\]]/g, "\\$&");
+          var regex = new RegExp("[?&]" + name + "(=([^&#]*)|&|#|$)"),
+              results = regex.exec(url);
+          if (!results) return null;
+          if (!results[2]) return '';
+          return decodeURIComponent(results[2].replace(/\+/g, " "));
+    }
+
+
+      function showProctyMobile() {
+          var counterSearchs = 0;
+          var myIntervalSearchs = window.setInterval(checkMobile, 1000);
+
+          function checkMobile() {
+              counterSearchs++;
+              if (counterSearchs === 20) {
+                  console.log('Testss');
+                  $('.proactive-badge').show();
+                  window.clearInterval(counterSearchs);
+                  return false;
+              }
+          }
+      }
+
+
+function emptyElement(){
+ _('status').innerHTML = "";
+}
+
+var test = false;
+
+function loadDefaultTemplate(message,description){
+  console.log('test ProbDescription Value ' + description);
+    var jpChatBtn = $('<div class="proactive-chat-container right-bottom" id="proactive-chat"><div class="panel panel-info" id="proactive-chat-popover"><div class="panel-heading"><div class="panel-media trycss" style="transition-delay: 0.1s; display: block;"><a href="#"><img src="/media/13921429/tm_logo_header.png" style="border:none;margin-top:-3px;"></a></div><div class="panel-header"><p class="panel-titles">ウイルスバスター</p><p class="panel-subtitle" id="proactive-chat-status">サポートセンター</p></div><div class="panel-heading-button"><i aria-hidden="true" class="fa fa-close"></i></div></div><div class="panel-body" id="proactive-chat-message"><div class="proactive-chat-message-content">'+message+'</div><div class="panel-footer"><a class="btn chat-with-us" id="testSecond"><span class="chat-icon">今すぐチャットする</span></a></div></div><div class="panel-body" id="two" style="display: none"><div class="proactive-chat-message-content"><p>お客さまの情報を入力してください。</p><form id="frmJPCONS" method="post" name="frmJPCONS" onsubmit="return false"><input id="hidAccessID" name="hidAccessID" type="hidden" value="JPCONS"><input id="hidProductID" name="hidProductID" type="hidden"><input id="hidProductGIC" name="hidProductGIC" type="hidden"><input id="ddlistProducts" name="ddlistProducts" type="hidden" value="ウイルスバスター クラウド"><input id="hidProbCatID" name="hidProbCatID" type="hidden" value="13"><input id="hidProbCatName" name="hidProbCatName" type="hidden" value="登録情報・ログイン"><input id="hidSubmitType" name="hidSubmitType" type="hidden"><input id="hidCusName" name="hidCusName" type="hidden"><input type="hidden" class="cfEmail" id="txtEmailDomain" name="txtEmailDomain"><input id="hidCusEmail" name="hidCusEmail" type="hidden"><input id="hidSerialNo" name="hidSerialNo" type="hidden"><input id="hidMacAdd" name="hidMacAdd" type="hidden"><input id="hidContractType" name="hidContractType" type="hidden"><input id="hidSRNumber" name="hidSRNumber" type="hidden"><input id="hidUrlFrom" name="hidUrlFrom" type="hidden" value=""> <input id="hidSched" name="hidSched" type="hidden" value=""><input id="txtProblemDescription" name="txtProblemDescription" type="hidden" value="'+description+' '+"From JP Reactive Chat:"+' '+ window.location.href + '"><input type="hidden" id="hidSolutionIDs" name="hidSolutionIDs"><div class="form-group has-feedback"><label class="control-label">姓</label><input class="form-control" id="txtFirstName" name="txtFirstName" placeholder="トレンド" required="" type="text" onfocus="emptyElement()" onchange="checkFname(this.value)" /><span class="form-control-feedback glyphicon glyphicon-ok"></span></div><div class="form-group has-feedback"><label class="control-label">名</label><input class="form-control" id="txtFamilyName" name="txtFamilyName" placeholder="太郎" required="" type="text" onfocus="emptyElement()" onchange="checkLname(this.value)"><span class="form-control-feedback glyphicon glyphicon-ok"></span> </div><div class="form-group has-feedback"><label class="control-label">メールアドレス</label><input class="form-control" id="txtEmailUsername" name="txtEmailUsername" placeholder="taro@trendmicro.com" required="" type="text" onfocus="emptyElement()"><span class="form-control-feedback glyphicon glyphicon-ok"></span> </div></form><p id="status"></p></div><div class="panel-footer"><a class="btn" onclick="submitForm()"><span class="chat-icons">チャット開始</span></a></div></div></div><div class="panel panel-info hide" id="proactive-chat-alert"><div class="panel-body text-center"><h4>ウイルスバスター サポートセンター</h4><br><p class="proactive-loading"><img id="loader" src="/media/13800237/proactive-icon-loading.gif"></p><br><div class="proactive-chat-alert-icon"><p><img src="/media/13800243/proactive-icon-primary.png"></p></div><br><p class="proactive-loading-state">まもなくサポート担当者が対応いたします</p></div></div><div class="proactive-chat-button right-bottom"><div class="proactive-badge" style="display: none;"></div><div class="proactive-chat-icon"><i aria-hidden="true" class="procty proactive-procty"></i></div></div></div><div class="modal-overlay" style="display: none;"></div>');
+    $('body').append(jpChatBtn).delay(1000).fadeIn(2200);
+  
+  
+   if (/Mobi/.test(navigator.userAgent)) {
+          if ( window.innerWidth <= 480) {
+            $('.proactive-chat-container').css({'z-index':'0', 'left':'1000px'});
+          }
+        }  
+}
+
+function loadLineTemplate(message,description){
+    var jpLine = $('<div class="proactive-chat-container right-bottom" id="proactive-chat-jp-line"><div class="panel panel-info swift-out" id="proactive-chat-popover" style="display: none;"><div class="panel-heading"><div class="panel-media trycss swift-out" style="transition-delay: 0.02s; display: none;"><a href="#"><img src="/media/13800255/jp-proactive-chat-icon-avatar.png"></a></div><div class="panel-header"><h4 class="panel-title">ウイルスバスター サポートセンター</h4><p class="panel-subtitle" id="proactive-chat-status">クルークがお答えします。</p></div><div class="panel-heading-button"><i aria-hidden="true" class="glyphicon glyphicon-remove"></i></div></div><div class="panel-body swift-out" id="proactive-chat-message"><div class="proactive-chat-message-content">'+message+'</div><div class="panel-footer"><center><a href="https://line.me/ti/p/%40tm_vb_support" target="_blank" onmousedown="_gaq.push([\'_trackEvent\', \'LINE\', \'AddFriends\', \''+solutionID+'\',  1, true]);"><img src="/media/13800264/jp-proactive-chat-line.png" style="width:100%"></a></center></div></div></div><div class="proactive-chat-button right-bottom"><div class="proactive-badge" style="display: none;"></div><div class="proactive-chat-icon"><i aria-hidden="true" class="procty proactive-procty"></i></div></div></div><div class="modal-overlay" style="display: none;"></div>');
+
+    $('body').append(jpLine).delay(1000).fadeIn(2200);     
+   if (/Mobi/.test(navigator.userAgent)) {//onmousedown="_gaq.push(['_trackEvent', 'LINE', 'AddFriends', 'HSC_fullinfo', 1, true]);"
+          if ( window.innerWidth <= 480) {
+            $('.proactive-chat-container').css({'z-index':'0', 'left':'1000px'});
+          }
+        } 
+}
+
+function loadDynamicPatternTwo(){
+    var firstScript = document.getElementsByTagName('script')[0],
+    js = document.createElement('script');
+    js.src = jpchatptrn2;
+    js.onload = function () {
+      $('#proactive-chat').launchBtn( { openDuration: 250, closeDuration: 300 } );
+       $('#testSecond').click(function() {
+     $('#proactive-chat-message').addClass('hide');
+     $('#two').fadeIn(300);
+      calculate();
+       });
+    };   
+ js.onreadystatechange = function() {
+  var r = js.readyState;
+  if (r === 'loaded' || r === 'complete') {
+    $('#proactive-chat').launchBtn( { openDuration: 250, closeDuration: 300 } );
+     $('#testSecond').click(function() {
+     $('#proactive-chat-message').addClass('hide');
+     $('#two').fadeIn(300);
+      calculate();
+       });
+    js.onreadystatechange = null;
+  }
+};
+  
+    firstScript.parentNode.insertBefore(js, firstScript);   
+}
+
+function loadJPLine(){
+     var firstScripts = document.getElementsByTagName('script')[0],
+     jsline = document.createElement('script');
+     jsline.src = prochatjp_btn;
+     jsline.onload = function () {
+      $('#proactive-chat-jp-line').launchBtn( { openDuration: 250, closeDuration: 300 } );
+      };   
+      jsline.onreadystatechange = function() {
+  var r = jsline.readyState;
+  if (r === 'loaded' || r === 'complete') {
+   $('#proactive-chat-jp-line').launchBtn( { openDuration: 250, closeDuration: 300 } );
+    jsline.onreadystatechange = null;
+  }
+  }
+      firstScripts.parentNode.insertBefore(jsline, firstScripts); 
+}
+
+
+function checkWindows(arr,url){
+    var url_index = [];
+    for (var i = 0; i < arr.prochat.length; i++) {
+      var urls = arr.prochat[i].URL.split(";"); //get multiple URL value ex:url=url1;url2
+      for(var u=0; u<urls.length; u++){
+        if(url.indexOf(urls[u]) > -1)
+        {
+         url_index.push(i);            
+        }
+      }//end of for-loop urls
+      }//end of very first loop
+     console.log("Total Found Same URL in Mapping: "+url_index.length);
+     console.log("From ROW: "+url_index);
+    return url_index;
+  }//end of checkWindow function
+
+function IsSupportHourss(inAccessID){
+      _isSupportHoursResult = false;      
+      $.ajax({
+          async: false,
+          type: "GET",
+          url: "/jpprechatform/handler/SupportHourHandler.ashx",
+          dataType: "jsonp",
+          data: ({ accessID: inAccessID }),
+          success: function (result) {
+              _isSupportHoursResult = result == "true";
+          },
+          error: function (xmlHttpRequest, error) {
+              _isSupportHoursResult = false;
+          },
+          complete: function (response) {
+              
+              if (_isSupportHoursResult) {                                  
+               jpsupp = true;
+               console.log('testON');
+              }
+              else {
+                 // window.location = "/jpprechatform/OffSupportRedirect.aspx?accessID=" + inAccessID;
+                jpsupp = false;
+                console.log('testOFF');
+              
+              }
+          }
+    }); 
+    console.log('AccessID: '+inAccessID+ ' - Support: ' + jpsupp);   
+    if(sched == "on")
+      { jpsupp = true; }
+   return jpsupp;
+}
+
+
+
+
+ var showLineApp = document.getElementById('showLineApp');
+                var show = false; 
+                var counter = 0;
+
+
+           if(showLineApp){
+                showLineApp.addEventListener('click', function(event){
+                  event.preventDefault();
+var messages = "<p>お困りですか？</p> <p>LINEでのサポートは365日お問い合わせを受け付けしています。<br>(24時間自動回答 / 9:30～17:30オペレータより回答）</p> <p> LINEアプリからいつでも簡単にお問い合わせいただけます。</p>";
+ var descriptions = "Description";
+           
+
+                   if(IsSupportHours(_accessID) || !IsSupportHours(_accessID)){
+                        var pC;
+                        counter++;
+                        var counterSearchs = 0;
+                        var test = false;
+                        var myIntervalSearchs = window.setInterval(checkMobiles, 100);
+                        function checkMobiles() {
+                            counterSearchs++;
+                            
+                            if (counterSearchs === 1) { 
+                               if(counter == 1){
+                                    var jpLine = $('<div class="proactive-chat-container right-bottom" id="proactive-chat-jp-line"><div class="panel panel-info swift-out" id="proactive-chat-popover" style="display: none;"><div class="panel-heading"><div class="panel-media trycss swift-out" style="transition-delay: 0.02s; display: none;"><a href="#"><img src="/media/13592385/jp-proactive-chat-icon-avatar_thumb.jpg"></a></div><div class="panel-header"><h4 class="panel-title">ウイルスバスター サポートセンター</h4><p class="panel-subtitle" id="proactive-chat-status">クルークがお答えします。</p></div><div class="panel-heading-button"><i aria-hidden="true" class="glyphicon glyphicon-remove"></i></div></div><div class="panel-body swift-out" id="proactive-chat-message"><div class="proactive-chat-message-content">'+messages+'</div><div class="panel-footer"><center><a href="https://line.me/ti/p/%40tm_vb_support" target="_blank" onmousedown="_gaq.push([\'_trackEvent\', \'LINE\', \'AddFriends\', \''+solutionID+'\',  1, true]);"><img src="/media/13592391/jp-proactive-chat-line.png" style="width:100%"></a></center></div></div></div><div class="proactive-chat-button right-bottom"><div class="proactive-badge" style="display: none;"></div><div class="proactive-chat-icon"><i aria-hidden="true" class="procty proactive-procty"></i></div></div></div><div class="modal-overlay" style="display: none;"></div>');
+                                    $('body').append(jpLine).delay(1000).fadeIn(2200);     
+                                  
+                                 pC = document.getElementById('proactive-chat-jp-line');
+                                 
+                                 
+                                 
+                                 
+                                 loadJPLine();
+                                 
+                                 
+                           
+                                }
+                              
+                                window.clearInterval(counterSearchs);
+                                 test = true;
+                            
+                              if(test){
+                                    var myVar = window.setInterval(function()        { 
+                                        if(counter == 1){
+                                          $(".proactive-chat-button").trigger("click"); 
+                                          $('.proactive-chat-icon .procty').toggleClass('proactive-procty-close').toggleClass('proactive-procty'); 
+                                          pC.removeAttribute("style");
+                                        }
+                                       window.clearInterval(myVar);             
+                                   }, 1000);
+                                 }
+               
+                                 return false;
+                               }
+                           }
+                              
+                               pC = document.getElementById('proactive-chat-jp-line');
+                               play = false;
+                                  if(counter !== 1){
+                                    pC.classList.remove("run-animation");
+                                    pC.offsetWidth = pC.offsetWidth;
+                                    pC.classList.add("run-animation");
+                                 }
+                            }
+                  
+                     });
+                  }
+               
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+$(function ($) {
+     $.ajax({
+     // url: "/scripts/web/HSC/jp_hsc_pcm.js?v=10032017_2", 
+     url: "/webservices/GetChatList_JP.ashx",
+     type: "GET",
+      dataType: "json",
+      success: function(data) {
+         var finalresult = "";
+         msg = "";
+         desc = "";
+         var win = window.location.href;
+         url_keys = checkWindows(data,win);
+         var qS = getParameterByName('q');
+         var ctr = win.length;
+         var show = false; 
+             console.log(data);
+         
+              if(url_keys.length > 0)
+              {
+                for(var i=0; i<url_keys.length; i++)
+                {
+                  if(win.indexOf('searchresult') > -1)
+                  {
+                    console.log("search result");
+                    var keywords = data.prochat[url_keys[i]].Keyword.toLowerCase().split(";");
+                    var uris = data.prochat[url_keys[i]].URL.toLowerCase().split(";");
+                    for(var k=0; k<keywords.length; k++)
+                      { 
+                      if(qS.toLowerCase().indexOf(keywords[k]) > -1)
+                      {
+                       //console.log("keywrord:"+keywords[k]+" -ctr: "+ctr+"  -index:"+qS.toLowerCase().indexOf(keywords[k]));
+                        if(qS.toLowerCase().indexOf(keywords[k]) < ctr) 
+                        {
+                           //console.log(data.prochatjp[url_keys[i]].Template);
+                          for(var r=0; r<uris.length; r++)
+                          {                         
+                             if(qS.toLowerCase().indexOf(keywords[k]) > -1 && win.toLowerCase().indexOf(uris[r].toLowerCase()) > -1   )
+                             { 
+                               // console.log(data.prochatjp[url_keys[i]].Template);
+                                if(data.prochat[url_keys[i]].Template == 1)
+                                  { _accessID = "JPCONS"; 
+                                    console.log('test'); 
+                                  }
+                                else(data.prochat[url_keys[i]].Template == 2)
+                                  { _accessID = "JPMUA";
+                                    console.log('rerwrwrwer');
+                                    
+                                  }
+                              }
+                          }
+                            
+                          ctr = qS.toLowerCase().indexOf(keywords[k]);
+                          msg = data.prochat[url_keys[i]].Message;
+                          desc = data.prochat[url_keys[i]].ProlemDesc;
+                          //intervals = data.prochat[url_keys[i]].Interval;
+                           intervalss = data.prochat[url_keys[i]].Interval;
+                                 console.log("SEARCCCCH " + intervalss);
+                          finalresult = "Row ["+url_keys[i]+"] - Keyword ["+keywords[k]+"]";
+                        }
+                        show = true;
+                      }//end if-statement if keyword exists in query str
+                    }//end for-loop keywords
+                    
+                  }//end of search result
+                  else
+                  {
+                    console.log("Product page/solution KB");
+                      if(data.prochat[url_keys[i]].Template == 1)
+                        { _accessID = "JPCONS"; 
+                           console.log('jpcons');
+                         }
+                  
+                      else (data.prochat[url_keys[i]].Template == 2)
+                        { _accessID= "JPMUA"; 
+                           console.log('jpmua');
+                         }
+                           
+                    
+                    msg = data.prochat[url_keys[i]].Message;     
+                    desc = data.prochat[url_keys[i]].ProblemDesc;
+                    intervals = data.prochat[url_keys[i]].Interval;
+                    console.log(intervals);
+                    if(msg!="") show = true;                    
+                    
+                    finalresult = "Row ["+url_keys[i]+"] - Keyword [Duh. KB/Product Page kaya ko]";
+                  }//end of KB url
+                  
+                  
+                }//end for-loop url_keys 
+              
+                //console.log('myAccess ID ' + _accessID);
+                
+                console.log("FINAL RESULT: "+finalresult);
+            
+                
+              if(IsSupportHourss(_accessID))
+               {
+                if(show)
+                {      
+                     if(_accessID == "JPCONS"){
+                      loadDefaultTemplate(msg,desc);
+                       console.log('This is a default Template');
+                          console.log('SCH');
+                      loadDynamicPatternTwo();
+                  
+                    
+                       
+         
+                if(window.location.href.indexOf('searchresult') === -1)  {  
+                  
+                     console.log('ssssSEARCCCCH');
+                   var loadeds = parseInt(sessionStorage.getItem('loadeds'), 10),
+                   loadeds_numb = loadeds?loadeds+1:1;
+                   sessionStorage.setItem('loadeds', loadeds_numb);
+                     console.log('SessionCount ' + loadeds_numb);
+                   if(loadeds_numb > 2){
+                      sessionKb = true;      
+                    }   
+                      var IDLE_TIMEOUT = '';
+                     if(!sessionKb && !isMobile.any()){//Desktop
+                         console.log('desktop');
+                       if(window.location.href.indexOf('contact') > - 1){
+                          IDLE_TIMEOUT = 30;
+                       }else if(window.location.href.indexOf('1104887') > - 1){
+                           IDLE_TIMEOUT = 60;
+                       }else{
+                           IDLE_TIMEOUT = intervals;
+                           console.log('intervals' + intervals);
+                       }
+                       
+                        //seconds
+                        var _idleSecondsCounter = 0;
+                        document.onclick = function() {
+                            _idleSecondsCounter = 0;
+                        };
+                        document.onmousemove = function() {
+                            _idleSecondsCounter = 0;
+                        };
+                        document.onkeypress = function() {
+                            _idleSecondsCounter = 0;
+                        };
+    
+                        var myInterval = window.setInterval(CheckIdleTime, 1000);
+    
+                        function CheckIdleTime() {
+                            _idleSecondsCounter++;
+                            if (_idleSecondsCounter == intervals) {
+                                console.log('time');
+                                $(".proactive-chat-button").trigger("click");
+                                $('.proactive-chat-icon .procty').toggleClass('proactive-procty-close').toggleClass('proactive-procty');
+                                window.clearInterval(myInterval);
+                            }
+                        }
+                   }
+             }
+                  
+              if(window.location.href.indexOf('searchresult') > - 1)  {
+                   var counterSearch = 0;
+                   var loaded = parseInt(sessionStorage.getItem('loaded'), 10),
+                   loaded_numb = loaded?loaded+1:1;
+                   sessionStorage.setItem('loaded', loaded_numb);
+             
+                   //console.log('SessionCount ' + intervalss);
+                  
+                  if(loaded_numb > 2){
+                    session = true;      
+                  }
+                  
+                  if(!session && !isMobile.any()){
+                   var myIntervalSearch = window.setInterval(CheckActiveSearch, 1000);
+                  }
+                  
+                  function CheckActiveSearch() {
+                        counterSearch++;
+                        if (counterSearch === intervalss) {
+                            $(".proactive-chat-button").trigger("click");               
+                            $('.proactive-chat-icon .procty').toggleClass('proactive-procty-close').toggleClass('proactive-procty');
+                            window.clearInterval(counterSearch);
+                            return false;
+                        }
+                    }  
+               }
+                       
+                    return false;
+                     
+                     if((win.indexOf('searchresult') > -1))
+                       {
+                         loadDefaultTemplate(msg,desc);
+                         loadDynamicPatternTwo();
+                         console.log('SEARCCjjjjjjjjjjjjjjjjjjjCCH');
+                         
+                         
+                       }
+                       
+                   
+                  }else{
+                    loadLineTemplate(msg,desc);
+                    console.log('This is line template');
+                   loadJPLine(); 
+                  }
+                  
+                  if(win.indexOf('searchresult') > -1)
+                  {                   
+                    
+                    if (!isMobile.any()) {//Desktop
+                      
+                      
+                      
+                      
+                      
+                     //   loadSearchInterval(intervalss);
+                       console.log(intervalss);
+                       console.log('basa');
+                      
+                      
+                         var counterSearch = 0;
+         var loaded = parseInt(sessionStorage.getItem('loaded'), 10),
+         loaded_numb = loaded?loaded+1:1;
+         sessionStorage.setItem('loaded', loaded_numb);
+   
+         console.log('SessionCount ' + intervalss);
+        
+        if(loaded_numb > 2){
+          session = true;      
+        }
+        
+        if(!session && !isMobile.any()){
+         var myIntervalSearch = window.setInterval(CheckActiveSearch, 1000);
+        }
+        
+        function CheckActiveSearch() {
+              counterSearch++;
+              if (counterSearch === intervalss) {
+                  $(".proactive-chat-button").trigger("click");               
+                  $('.proactive-chat-icon .procty').toggleClass('proactive-procty-close').toggleClass('proactive-procty');
+                  window.clearInterval(counterSearch);
+                  return false;
+              }
+          }  
+                      
+                      
+                      
+                      
+                      
+                      
+                      
+                      
+                      
+                      
+                      
+                      
+                      
+                      return false;
+                      
+                      
+                      
+                      
+                      
+                      
+                    } else {
+                        showProctyMobile();
+                    }
+                  }//end of search result again (need to showProctyMobile outside the loop above)
+                  else
+                  {
+                  
+                    $('#proactive-chat').remove();
+                   
+                  console.log('SEARCCCCH');   
+                   var loadeds = parseInt(sessionStorage.getItem('loadeds'), 10),
+                   loadeds_numb = loadeds?loadeds+1:1;
+                   sessionStorage.setItem('loadeds', loadeds_numb);
+                     console.log('SessionCount ' + loadeds_numb);
+                   if(loadeds_numb > 2){
+                      sessionKb = true;      
+                    }   
+                      var IDLE_TIMEOUT = '';
+                     if(!sessionKb && !isMobile.any()){//Desktop
+                         console.log('desktop');
+                       if(window.location.href.indexOf('contact') > - 1){
+                          IDLE_TIMEOUT = 30;
+                       }else if(window.location.href.indexOf('1104887') > - 1){
+                           IDLE_TIMEOUT = 60;
+                       }else{
+                           IDLE_TIMEOUT = intervals;
+                           console.log('intervals' + intervals);
+                       }
+                       
+                        //seconds
+                        var _idleSecondsCounter = 0;
+                        document.onclick = function() {
+                            _idleSecondsCounter = 0;
+                        };
+                        document.onmousemove = function() {
+                            _idleSecondsCounter = 0;
+                        };
+                        document.onkeypress = function() {
+                            _idleSecondsCounter = 0;
+                        };
+    
+                        var myInterval = window.setInterval(CheckIdleTime, 1000);
+    
+                        function CheckIdleTime() {
+                            _idleSecondsCounter++;
+                            if (_idleSecondsCounter == intervals) {
+                                console.log('time');
+                                $(".proactive-chat-button").trigger("click");
+                                $('.proactive-chat-icon .procty').toggleClass('proactive-procty-close').toggleClass('proactive-procty');
+                                window.clearInterval(myInterval);
+                            }
+                        }
+                    }else{ if (isMobile.any()) { showProctyMobile(); }  }
+                  }//end of KB again (need to showProctyMobile outside the loop above)
+                return false;
+                }//end of loading template
+                  
+                
+              }//end of URL exists in mapping
+            }//end of support hours
+             else{
+               console.log(jpsupp);
+               console.log('OFF access ' + _accessID);
+             }
+  } // end success
+}); //end Ajax Request JP Link Mapping
+});
+
+
+function checkFname(val) {
+    var withoutSpace = val.replace(/ /g,"");
+    console.log(val.replace(/ /g,""));
+    
+  
+  
+  
+      if (withoutSpace.length > 0) {
+          console.log(val.length);
+           $('#txtFirstName').nextAll('.form-control-feedback').show().removeClass('glyphicon-remove').addClass('glyphicon-ok');
+           $('#txtFirstName').closest('.form-group').removeClass('has-error').addClass('has-success');
+          resultFname = true;
+          console.log('test');
+      }else{
+         val.length = 0;
+         console.log(val.length);
+           resultFname = false;
+          $('#txtFirstName').nextAll('.form-control-feedback').show().removeClass('glyphicon-ok').addClass('glyphicon-remove');
+          $('#txtFirstName').closest('.form-group').removeClass('has-success').addClass('has-error');
+          
+      
+      }
+      return resultFname;
+  }
+
+  function checkLname(val) {
+    var withoutSpacelLName = val.replace(/ /g,"");
+    console.log(val.replace(/ /g,""));
+      if (withoutSpacelLName.length > 0) {
+           $('#txtFamilyName').nextAll('.form-control-feedback').show().removeClass('glyphicon-remove').addClass('glyphicon-ok');
+           $('#txtFamilyName').closest('.form-group').removeClass('has-error').addClass('has-success');
+          resultLname = true;
+          console.log('test');
+      }else{
+             val.length = 0;
+              resultLname = false;
+           $('#txtFamilyName').nextAll('.form-control-feedback').show().removeClass('glyphicon-ok').addClass('glyphicon-remove');
+          $('#txtFamilyName').closest('.form-group').removeClass('has-success').addClass('has-error');
+      
+        }
+      return resultLname;
+  }
+
+  function checkEmail(val) {
+        var withoutSpaceEmail = val.replace(/ /g,"");
+    
+      var reg = /^([A-Za-z0-9_\-\.])+\@([A-Za-z0-9_\-\.])+\.([A-Za-z]{2,4})$/;
+      if (reg.test(val) == true && withoutSpaceEmail.length > 0) {
+          console.log('valid Email Address');
+          $('#txtEmailUsername').nextAll('.form-control-feedback').show().removeClass('glyphicon-remove').addClass('glyphicon-ok');
+          $('#txtEmailUsername').closest('.form-group').removeClass('has-error').addClass('has-success');
+           cEM = true;
+          resultEmail = true;
+      }else{
+          cEM = false;
+            val.length = 0;
+        resultEmail = false;
+          $('#txtEmailUsername').nextAll('.form-control-feedback').show().removeClass('glyphicon-ok').addClass('glyphicon-remove');
+         $('#txtEmailUsername').closest('.form-group').removeClass('has-success').addClass('has-error');
+      }
+      return resultEmail;
+  }
+
+
+
+function _(x) {
+  return document.getElementById(x);
+}
+
+function submitForm(){
+    console.log(_accessID);
+    var fName = $('#txtFirstName').val();
+    var famName = $('#txtFamilyName').val();
+    var cEmail = $('#txtEmailUsername').val();
+
+  
+    if((famName == "") || (fName == "")){
+      
+      $("#status").html( '※全て必須項目です');
+      return false;
+      }/*else if(!cEM){
+        $("#status").html( '※有効なメールアドレスを入力してください');
+      }*/
+    else{
+   // $("#hidCusEmail").val("");
+    $("#hidAccessID").val(_accessID);  
+    $("#hidProductID").val("20");
+    $("#hidSubmitType").val("new");
+    $("#hidSerialNo").val("");
+    $("#hidSRNumber").val("");
+    $("#hidProductGIC").val("JP-TICEWWJCX-120-1");
+    $("#hidUrlFrom").val(_urlFrom);
+    $("#hidProductName").val($("#ddlistProducts").val());
+      
+    var vals = $("#txtEmailUsername").val();
+   var xx = vals.split("@")  
+    console.log(xx[0]);
+      
+   var s = document.getElementById("txtEmailUsername").value = xx[0];
+   var y = document.getElementById("txtEmailDomain").value = xx[1];
+      
+    $("#hidCusName").val($("#txtFamilyName").val() + " " + $("#txtFirstName").val());
+    document.getElementById("hidCusEmail").value = s + "@" + y;
+    $('#proactive-chat .panel:first-child()').addClass('hide');
+    $('#proactive-chat-alert').removeClass('hide');
+    calculate();
+
+
+    _("frmJPCONS").method = "post";
+    _("frmJPCONS").action = '/jpprechatform/InitPreChatForm.aspx';
+    _("frmJPCONS").setAttribute("target", "bugsme");
+   var winref;
+   if(window.location.href.indexOf('ja-jp') > - 1){
+     winref = window.open('', 'bugsme', 'width=800, height=500, any-other-option, ...');
+   } else{  
+     winref = window.open('', 'bugsme', 'width=400, height=450, any-other-option, ...');
+  }
+  
+        var refreshIntervalId = setInterval(function() {
+          if (winref.location.href != 'about:blank') {
+              tru = true;
+              $("#loader").attr("src","/media/13800228/proactive-chat-icon-success.gif");
+              $('.proactive-loading-state').html('サポート担当者の準備が整いました.');
+             if($('#loader').attr('src') === "/media/13800228/proactive-chat-icon-success.gif") {
+                 var trigger = setInterval(function(){  $(".proactive-chat-button").trigger("click"); 
+                        $('.proactive-chat-icon .procty').toggleClass('proactive-procty-close').toggleClass('proactive-procty');
+                      clearInterval(trigger);                                                     
+                 }, 3000);
+             }
+              console.log('ressss');
+              clearInterval(refreshIntervalId);
+          }
+      }, 5000);
+      
+      
+      
+      
+      
+         var timer = setInterval(function() {
+        if(winref.closed) {      
+            $('#proactive-chat-alert').addClass('hide');
+            $('#proactive-chat-popover').attr('style','display:none');
+            $('#proactive-chat-popover').removeClass('hide');
+            $('#proactive-chat-popover > #proactive-chat-message').removeClass('hide');
+            $('#proactive-chat-popover > #two').attr('style','display:none');
+            $('#txtFirstName').val('');
+            $('#txtFamilyName').val('');
+            $('#txtEmailUsername').val('');
+            $('#txtFirstName').parent().removeClass('has-success');
+            $('#txtLastName').parent().removeClass('has-success');
+            $('#txtEmailAddress').parent().removeClass('has-success');
+            $('.glyphicon-ok').css('display', 'none');
+            $("#loader").attr("src","/media/13800237/proactive-icon-loading.gif");
+            $('.proactive-loading-state').html('まもなくサポート担当者が対応いたします.');
+            clearInterval(timer);    
+        }
+    }, 1000);
+
+    _("frmJPCONS").submit();
+   
+  }
+}
+
+
+
+
+​
